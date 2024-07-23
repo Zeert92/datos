@@ -6,11 +6,11 @@
     <title>Guardar Gastos e Ingresos</title>
     <style>
         body {
-            background-image: url('bt21.jpg'); /* Reemplaza esta URL con la URL de la imagen que desees usar */
-            background-size: cover; /* Esto asegura que la imagen cubra toda la pantalla */
-            background-repeat: no-repeat; /* Evita que la imagen se repita */
-            background-attachment: fixed; /* Hace que la imagen de fondo permanezca fija en su posición mientras se hace scroll */
-            color: rgb(0, 0, 0); /* Cambia el color del texto para mejor visibilidad si es necesario */
+            background-image: url('bt21.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: rgb(0, 0, 0);
         }
         #f {
             display: flex;
@@ -56,6 +56,7 @@
     <script>
         let fileHandle;
         let registrosPorMes = {};
+        let fileContent = "";
 
         async function leerArchivo() {
             [fileHandle] = await window.showOpenFilePicker({
@@ -65,8 +66,7 @@
                 }]
             });
             const file = await fileHandle.getFile();
-            const contents = await file.text();
-            fileContent = contents;
+            fileContent = await file.text();
         }
 
         async function guardarArchivo() {
@@ -97,27 +97,24 @@
                 let registro;
                 if (categoria === "Ingreso" && !isNaN(cantidadRestar)) {
                     const montoOriginal = monto;
-                    cuotas -= cantidadRestar; // Restar la cantidad especificada al monto ingresado si es un ingreso
+                    cuotas -= cantidadRestar;
                     registro = `${categoria}: ${descripcion} - Monto Original: $${montoOriginal.toFixed(2)}, Cuotas: ${cuotas},  Cantidad a restar: $${cantidadRestar.toFixed(2)}, Total: $${monto.toFixed(2)}, Fecha: ${fecha}, Para: ${destinatario}`;
                 } else {
                     registro = `${categoria}: ${descripcion} - $${monto.toFixed(2)}, Fecha: ${fecha}, Para: ${destinatario}`;
                 }
 
-                // Obtener el mes y año de la fecha
-                const mesAnio = fecha.slice(0, 7); // YYYY-MM
+                const mesAnio = fecha.slice(0, 7);
 
-                // Agrupar registros por mes y año
                 if (!registrosPorMes[mesAnio]) {
                     registrosPorMes[mesAnio] = [];
                 }
                 registrosPorMes[mesAnio].push(registro);
 
-                // Ordenar registros por mes y año (opcional)
                 Object.keys(registrosPorMes).sort().forEach(function(key) {
                     registrosPorMes[key].sort();
                 });
 
-                // Guardar en el archivo de texto
+                fileContent = ""; // Reiniciar el contenido del archivo antes de agregar nuevos registros
                 for (const mes in registrosPorMes) {
                     fileContent += `Registrado en ${mes}:\n`;
                     registrosPorMes[mes].forEach(registro => {
@@ -125,7 +122,6 @@
                     });
                 }
 
-                // Limpiar campos después de agregar
                 document.getElementById('descripcion').value = '';
                 document.getElementById('monto').value = '';
                 document.getElementById('cantidadRestar').value = '';
@@ -142,3 +138,4 @@
     </script>
 </body>
 </html>
+
